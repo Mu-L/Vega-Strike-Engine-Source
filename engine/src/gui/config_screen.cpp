@@ -19,6 +19,7 @@
 #include "config_xml.h"
 #include "src/vs_exit.h"
 #include "cmd/music.h"
+#include "vega_cast_utils.h"
 #include "src/audiolib.h"
 #include <boost/json.hpp>
 #include <boost/filesystem.hpp>
@@ -345,8 +346,8 @@ static void apply_display_to_config() {
     mark_dirty("graphics.font_point");
     RequestImGuiFontSize(g.font_point_flt);   // live-rebuild the ImGui font atlas at the new size
     // HUD FOV: persist and hot-apply to the camera.
-    g.fov_flt = (float)atof(hud_fov_buf);
-    g.fov_dbl = atof(hud_fov_buf);
+    g.fov_flt = locale_aware_stof(std::string(hud_fov_buf));
+    g.fov_dbl = locale_aware_stod(std::string(hud_fov_buf));
     mark_dirty("graphics.fov");
     if (_Universe && _Universe->AccessCamera()) {
         _Universe->AccessCamera()->SetFov(g.fov_flt);
@@ -1616,7 +1617,7 @@ static const ConfigAccessor kConfigAccessors[] = {
     {"graphics.gl_accelerated_visual",   [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.gl_accelerated_visual;}, [](vega_config::Configuration&c,const std::string&v){c.graphics.gl_accelerated_visual=(v=="true"||v=="1");}},
     {"graphics.aspect",                  [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.aspect_flt;},            [](vega_config::Configuration&c,const std::string&v){c.graphics.aspect_flt=(float)atof(v.c_str());c.graphics.aspect_dbl=atof(v.c_str());}},
     {"graphics.font_point",              [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.font_point_flt;},        [](vega_config::Configuration&c,const std::string&v){c.graphics.font_point_flt=(float)atof(v.c_str());c.graphics.font_point_dbl=atof(v.c_str());}},
-    {"graphics.fov",                     [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.fov_flt;},               [](vega_config::Configuration&c,const std::string&v){c.graphics.fov_flt=(float)atof(v.c_str());c.graphics.fov_dbl=atof(v.c_str());}},
+    {"graphics.fov",                     [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.fov_flt;},               [](vega_config::Configuration&c,const std::string&v){c.graphics.fov_flt=locale_aware_stof(v.c_str());c.graphics.fov_dbl=locale_aware_stod(v.c_str());}},
     {"graphics.model_detail",            [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.model_detail_flt;},      [](vega_config::Configuration&c,const std::string&v){c.graphics.model_detail_flt=(float)atof(v.c_str());c.graphics.model_detail_dbl=atof(v.c_str());}},
     {"graphics.mipmap_detail",           [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.mipmap_detail;},         [](vega_config::Configuration&c,const std::string&v){c.graphics.mipmap_detail=atoi(v.c_str());}},
     {"graphics.planet_detail_level",     [](const vega_config::Configuration&c)->boost::json::value{return c.graphics.planet_detail_level;},   [](vega_config::Configuration&c,const std::string&v){c.graphics.planet_detail_level=atoi(v.c_str());}},
